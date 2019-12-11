@@ -1,0 +1,28 @@
+{% extends 'adminBase.html' %}
+
+{% block content %}
+    <main>
+        {% for message in get_flashed_messages(with_categories=True) %}
+            <div class="alert alert-{{ message[0] }}" role="alert">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ message[1] }}
+            </div>
+        {% endfor %}
+    </main>
+
+    <div class="container">
+        <div class="jumbotron">
+            <h1>
+                hello, {{ current_user.rName }}!
+            </h1>
+            <p>
+                ...
+            </p>
+            <p>
+                <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
+            </p>
+        </div>
+    </div>
+
+
+{% endblock %}

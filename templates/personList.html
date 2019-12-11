@@ -1,0 +1,37 @@
+{% extends 'library/home.html' %}
+{% from "macros.html" import render_pagination %}
+
+{% block content %}
+    <main>
+        {% for message in get_flashed_messages(with_categories=True) %}
+            <div class="alert alert-{{ message[0] }}" role="alert">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ message[1] }}
+            </div>
+        {% endfor %}
+
+    </main>
+
+    <!-- 触发模态弹出窗的元素 -->
+    <button type="button" data-toggle="modal" data-target="#mymodal" class="btn btn-primary">点击我会弹出模态弹出窗</button>
+    <!-- 模态弹出窗 -->
+    <div class="modal fade" id="mymodal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                !boom
+                <!-- 模态弹出窗内容 -->
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <ul>
+            {% for person in personList.items %}
+                <li>{{ person.ID }}</li>
+            {% endfor %}
+        </ul>
+
+        {{ render_pagination(personList, "auth.pag") }}
+    </div>
+{% endblock %}

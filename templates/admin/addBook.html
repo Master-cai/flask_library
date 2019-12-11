@@ -1,0 +1,21 @@
+{% extends 'adminBase.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+
+    <main>
+        {% for message in get_flashed_messages(with_categories=True) %}
+            <div class="alert alert-{{ message[0] }}" role="alert">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ message[1] }}
+            </div>
+        {% endfor %}
+
+    </main>
+    <div class="page-header">
+        <h3>Place add new book</h3>
+    </div>
+    <div class="col-md-4">
+        {{ wtf.quick_form(form) }}
+    </div>
+{% endblock %}

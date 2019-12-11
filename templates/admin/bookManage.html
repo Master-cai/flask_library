@@ -1,0 +1,85 @@
+{% extends 'adminBase.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+    <main>
+        {% for message in get_flashed_messages(with_categories=True) %}
+            <div class="alert alert-{{ message[0] }}" role="alert">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ message[1] }}
+            </div>
+        {% endfor %}
+    </main>
+
+    <div class="col-md-4">
+        {{ wtf.quick_form(form) }}
+    </div>
+
+
+    <table class="table table-hover">
+        <thead>
+        <th>BID</th>
+        <th>封面</th>
+        <th>标题</th>
+        <th>作者</th>
+        <th>分类</th>
+        <th>在馆位置</th>
+        <th>在馆数量</th>
+        <th>操作</th>
+        </thead>
+        <tbody>
+        {% for book in booksList %}
+            <tr>
+                <td>{{ book.BID }}</td>
+                <td>
+                    bookImg
+                </td>
+                <td><a href="#">{{ book.bName }}</a></td>
+                <td>{{ book.author }}</td>
+                <td>{{ book.Category }}</td>
+                <td>{{ book.press }}</td>
+                <td>{{ book.currNum }}</td>
+                <td>
+
+                    <button class="btn btn-danger glyphicon glyphicon-remove btn-sm" data-toggle="modal"
+                            data-target="#myModal">
+                        移除此书
+                    </button>
+                    <!-- 模态框（Modal） -->
+                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                        &times;
+                                    </button>
+                                    <h4 class="modal-title" id="myModalLabel">
+                                        删除确认
+                                    </h4>
+                                </div>
+                                <div class="modal-body">
+                                    你确定要从图书馆中删除此书所有信息吗（不可恢复）？
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                                    </button>
+                                    <button type="button"
+                                            onclick="window.location.href='{{ url_for('admin.delete_book', BID=book.BID) }}'"
+                                            class="btn btn-danger glyphicon glyphicon-remove">
+                                        确认删除
+                                    </button>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal -->
+                    </div>
+
+                </td>
+
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+{% endblock %}

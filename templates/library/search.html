@@ -1,0 +1,52 @@
+{% extends 'mybase.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block content %}
+    <main>
+        {% for message in get_flashed_messages(with_categories=True) %}
+            <div class="alert alert-{{ message[0] }}" role="alert">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ message[1] }}
+            </div>
+        {% endfor %}
+    </main>
+
+    <div class="col-md-4">
+        {{ wtf.quick_form(form) }}
+    </div>
+
+
+    <table class="table table-hover">
+        <thead>
+        <th>BID</th>
+        <th>封面</th>
+        <th>标题</th>
+        <th>作者</th>
+        <th>分类</th>
+        <th>在馆位置</th>
+        <th>在馆数量</th>
+        <th>操作</th>
+        </thead>
+        <tbody>
+        {% for book in booksList %}
+            <tr>
+                <td>{{ book.BID }}</td>
+                <td>
+                    bookImg
+                </td>
+                <td><a href="#">{{ book.bName }}</a></td>
+                <td>{{ book.author }}</td>
+                <td>{{ book.Category }}</td>
+                <td>{{ book.press }}</td>
+                <td>{{ book.currNum }}</td>
+                <td>
+
+                    <a class="btn btn-info glyphicon glyphicon-thumbs-up btn-sm" href="{{ url_for('home.borrow', BID=book.BID) }}">借阅此书</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+{% endblock %}
