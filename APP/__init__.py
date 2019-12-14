@@ -1,6 +1,7 @@
 from flask import Flask
 
 from APP.blueprints.admin import init_admin
+from APP.blueprints.api.user import init_api_user
 from APP.extentions import init_extentions
 from APP.setting import envs
 from APP.blueprints.auth import init_auth
@@ -15,5 +16,6 @@ def create_app():
     init_auth(app)
     init_home(app)
     init_admin(app)
+    init_api_user(app)
     init_extentions(app)
     return app

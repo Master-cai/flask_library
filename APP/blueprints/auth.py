@@ -1,12 +1,17 @@
 import json
 import random
-from flask import Blueprint, render_template, request
+
+from random import choice
+
+import requests
+from faker import Faker
+from flask import Blueprint, render_template, request, jsonify
 from flask import render_template, flash, redirect, url_for, Blueprint
 from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy.exc import DataError, InternalError
 
 from APP.decorators import admin_required
-from APP.extentions import db
+from APP.extentions import shitBuilder, shits
 from APP.models import *
 from APP.forms import LoginForm, RegisterForm
 from APP.utils import redirect_back
@@ -19,7 +24,6 @@ def init_auth(app):
 
 
 @login_required
-@auth.route('/')
 @auth.route('/home/')
 def index():
     return render_template('library/home.html')
@@ -189,3 +193,33 @@ def create_admin():
     db.session.add(reader)
     db.session.commit()
     return 'Admin success'
+
+
+@auth.route('/createReader/')
+def create_reader():
+    num = request.args.get("num", 1, type=int)
+    Max = int(Reader.query.order_by(Reader.RID.desc()).first().RID)
+    faker = Faker()
+    departments = ['Philosophy', 'Economics', 'Law', 'Education', 'Mathematics', 'Astronomy', 'Biology', 'Medicine',
+                   'Computer Science']
+    for i in range(num):
+        newReader = Reader()
+        RID = Max + i + 1
+        password = '111111'
+        rName = faker.name()
+        department = choice(departments)
+        major = choice(departments)
+        borrowNum = 0
+        newReader.set_password(password)
+        newReader.RID = RID
+        newReader.rName = rName
+        newReader.department = department
+        newReader.major = major
+        newReader.borrowNum = borrowNum
+        db.session.add(newReader)
+        db.session.commit()
+    return 'success create %d reader' % num
+
+
+
+

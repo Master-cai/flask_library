@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, jsonify
 from flask import render_template, flash, Blueprint
 from sqlalchemy import or_
 
@@ -114,7 +114,37 @@ def return_book():
     return render_template('admin/returnBook.html', form=form)
 
 
-@admin.route('/readerManage/', methods=['GET', 'POST'])
-@admin_required
+@admin.route('/readerManage/')
+# @admin_required
 def reader_manage():
-    return 's'
+    return render_template('admin/readerManage.html')
+
+
+@admin.route('/getReaderInfo/')
+def get_reader_info():
+    per_page = request.args.get('limit', type=int)
+    curr_page = request.args.get('offset', type=int)
+    readersList = Reader.query.limit(per_page).offset(curr_page)
+    # readersList = Reader.query.all()
+    search = request.args.get('search', type=str)
+    if len(search):
+        readersList = Reader.query.filter(Reader.RID.like('%{}%'.format(search)))
+        print(search)
+        print(readersList)
+    total = Reader.query.count()
+    rows = []
+    for reader in readersList:
+        r = {
+            'RID': reader.RID,
+            'rName': reader.rName,
+            'department': reader.department,
+            'major': reader.major,
+            'borrowNum': reader.borrowNum
+        }
+        rows.append(r)
+    t = {
+        'total': total,
+        'totalNotFiltered': total,
+        'rows': rows
+    }
+    return jsonify(t)
