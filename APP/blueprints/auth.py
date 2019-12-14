@@ -219,7 +219,3 @@ def create_reader():
         db.session.add(newReader)
         db.session.commit()
     return 'success create %d reader' % num
-
-
-
-
