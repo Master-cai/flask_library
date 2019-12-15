@@ -6,7 +6,7 @@ from APP.models import BookInfo, User
 apiAdmin = Blueprint('apiAdmin', __name__)
 
 
-def init_api_user(app):
+def init_api_admin(app):
     app.register_blueprint(blueprint=apiAdmin, url_prefix='/api/admin/')
 
 
@@ -16,9 +16,10 @@ def api_admin_delete_book():
     bookInfo = request.get_json()['params']['data']
     ISBN = bookInfo['ISBN']
     book = BookInfo.query.get(ISBN)
-    if len(book) == 0:
+    if book is None:
         return jsonify({'status': 'fail'})
     db.session.delete(book)
+    db.session.commit()
     return jsonify({'status': 'success'})
 
 
@@ -49,7 +50,8 @@ def api_admin_insert_book():
     link = bookInfo['link']
     description = bookInfo['description']
     oldBook = BookInfo.query.get(ISBN)
-    if len(oldBook) == 0:
+    if oldBook is None:
+        # print('old')
         newBook = BookInfo()
         newBook.isbn = ISBN
         newBook.name = bookname
@@ -57,18 +59,19 @@ def api_admin_insert_book():
         newBook.num = booknumber
         newBook.publisher = press
         newBook.available_num = booknumber
+        newBook.description = description
         newBook.link = link
         db.session.add(newBook)
-        db.commit()
+        db.session.commit()
         return jsonify({'status': 'success'})
-    oldBook = BookInfo()
     oldBook.isbn = ISBN
     oldBook.name = bookname
     oldBook.author = author
     oldBook.num = booknumber + oldBook.num
     oldBook.publisher = press
+    oldBook.description = description
     oldBook.link = link
-    db.commit()
+    db.session.commit()
     return jsonify({'status': 'success'})
 
 
@@ -85,7 +88,7 @@ def api_admin_insert_user():
     newUser.sno = son
     newUser.password = password
     db.session.add(newUser)
-    db.commit()
+    db.session.commit()
     return jsonify({'status': 'success'})
 
 
@@ -103,3 +106,16 @@ def api_admin_revise_user():
     oldUser.email = email
     db.session.commit()
     return jsonify({'status': 'success'})
+
+# @apiAdmin.route('/s', methods=['GET'])
+# def index():
+#     return 's'
+
+
+# @apiAdmin.route('/ab', methods=['GET'])
+# def ab():
+#     books = BookInfo.query.all()
+#     for book in books:
+#         book.num = 10
+#     db.session.commit()
+#     return 's'

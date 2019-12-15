@@ -28,24 +28,24 @@ def api_user_info():
 
 
 # 注册 写入
-@apiUser.route('/register', methods=['POST'])
+@apiUser.route('/register', methods=['GET', 'POST'])
 def api_user_register():
     userInfo = request.get_json()['params']
     email = userInfo['email']
     mobile = userInfo['mobile']
     password_md5 = userInfo['password']
     studentNumber = userInfo['studentNumber']
-    # print(email, mobile, password_md5, studentNumber)
+    print(email, mobile, password_md5, studentNumber)
 
     # ------------------------------------#
     # sql
-    reader = User()
-    reader.sno = studentNumber
-    reader.password = password_md5
-    reader.phone = mobile
-    reader.email = email
-    db.session.add(reader)
-    db.commit()
+    # reader = User()
+    # reader.sno = studentNumber
+    # reader.password = password_md5
+    # reader.phone = mobile
+    # reader.email = email
+    # db.session.add(reader)
+    # db.commit()
     # ------------------------------------#
     return 'success'
 
@@ -132,4 +132,3 @@ def api_user_get_operation1():
     }
 
     return jsonify(operations)
-

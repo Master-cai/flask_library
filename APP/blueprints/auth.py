@@ -23,10 +23,16 @@ def init_auth(app):
     app.register_blueprint(blueprint=auth)
 
 
-@login_required
-@auth.route('/home/')
+@auth.route('/SSS/')
 def index():
-    return render_template('library/home.html')
+    # return render_template('library/home.html')
+    return 'sss'
+
+
+# @login_required
+# @auth.route('/home/')
+# def index():
+# return render_template('library/home.html')
 
 
 @auth.route('/login/', methods=['GET', 'POST'])
