@@ -103,30 +103,30 @@ def drop_db():
     return 'drop successfully'
 
 
-@auth.route('/add/')
-def add():
-    p = Person()
-    p.ID = '%d' % random.randrange(100)
-    db.session.add(p)
-    db.session.commit()
-    return 'successfully added'
+# @auth.route('/add/')
+# def add():
+#     p = Person()
+#     p.ID = '%d' % random.randrange(100)
+#     db.session.add(p)
+#     db.session.commit()
+#     return 'successfully added'
 
 
-@auth.route('/page/')
-def page():
-    pages = request.args.get("page", 1, type=int)
-    per_page = request.args.get("per_page", 3, type=int)
-    persons = Person.query.limit(per_page).offset((pages - 1) * per_page)
-    return render_template('personList.html', personList=persons)
+# @auth.route('/page/')
+# def page():
+#     pages = request.args.get("page", 1, type=int)
+#     per_page = request.args.get("per_page", 3, type=int)
+#     persons = Person.query.limit(per_page).offset((pages - 1) * per_page)
+#     return render_template('personList.html', personList=persons)
 
 
-@auth.route('/pag')
-@admin_required
-def pag():
-    pages = request.args.get("page", 1, type=int)
-    per_page = request.args.get("per_page", 3, type=int)
-    persons = Person.query.paginate(pages, per_page)
-    return render_template('personList.html', personList=persons)
+# @auth.route('/pag')
+# @admin_required
+# def pag():
+#     pages = request.args.get("page", 1, type=int)
+#     per_page = request.args.get("per_page", 3, type=int)
+#     persons = Person.query.paginate(pages, per_page)
+#     return render_template('personList.html', personList=persons)
 
 
 @auth.route('/addBooks/')
@@ -137,40 +137,40 @@ def addBooks():
         print(js[1])
 
     for book in js:
-        b = Book()
+        b = BookInfo()
         try:
-            b.bName = book['name']
+            b.name = book['name']
         except KeyError:
             pass
         try:
-            b.ISBN = book['ISBN']
+            b.isbn = book['ISBN']
         except KeyError:
             pass
         try:
             b.author = book['author']
         except KeyError:
             pass
+        # try:
+        #     b.publicationDate = book['date'] + '-1'
+        # except KeyError:
+        #     pass
         try:
-            b.publicationDate = book['date'] + '-1'
-        except KeyError:
-            pass
-        try:
-            b.press = book['press']
+            b.publisher = book['press']
         except KeyError:
             pass
         try:
             b.sum = 10
-            b.currNum = 10
+            b.available_num = 10
         except KeyError:
             pass
-        try:
-            b.price = int(book['price'].split('.')[0])
-        except (KeyError, ValueError):
-            pass
-        try:
-            b.score = book['score']
-        except KeyError:
-            pass
+        # try:
+        #     b.price = int(book['price'].split('.')[0])
+        # except (KeyError, ValueError):
+        #     pass
+        # try:
+        #     b.score = book['score']
+        # except KeyError:
+        #     pass
         try:
             b.link = book['link']
         except (KeyError, DataError):

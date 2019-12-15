@@ -1,6 +1,8 @@
+from faker import Faker
 from flask import Blueprint, jsonify, request
 
-from APP.extentions import shitBuilder, shits
+from APP.extentions import shitBuilder, shits, db
+from APP.models import RecommendBooks, BookInfo, User
 
 apiUser = Blueprint('apiUser', __name__)
 
@@ -20,7 +22,8 @@ def test():
 def api_user_info():
     info = request.get_json()
     # role
-    print(info)
+    # print(info)
+    # {'username': 'admin'}
     return jsonify(shits)
 
 
@@ -30,11 +33,19 @@ def api_user_register():
     userInfo = request.get_json()['params']
     email = userInfo['email']
     mobile = userInfo['mobile']
-    password = userInfo['password']
+    password_md5 = userInfo['password']
     studentNumber = userInfo['studentNumber']
-    print(email, mobile, password, studentNumber)
+    # print(email, mobile, password_md5, studentNumber)
+
     # ------------------------------------#
     # sql
+    reader = User()
+    reader.sno = studentNumber
+    reader.password = password_md5
+    reader.phone = mobile
+    reader.email = email
+    db.session.add(reader)
+    db.commit()
     # ------------------------------------#
     return 'success'
 
@@ -45,18 +56,19 @@ def api_user_book():
     # bookInfo = request.get_json()['params']
     # --------
     # sql
-    bookList = []
+    bookList = BookInfo.query.all()
+
     # --------
     books = []
-    # for book in bookList:
-    b = {
-        'ISBN': 1,
-        'bookname': 1,
-        'author': 1,
-        'booknumber': 1,
-        'location': 1
-    }
-    books.append(b)
+    for book in bookList:
+        b = {
+            'ISBN': book.isbn,
+            'bookname': book.name,
+            'author': book.author,
+            'booknumber': book.num,
+            'press': book.press
+        }
+        books.append(b)
     data = {
         'data': books
     }
@@ -74,6 +86,14 @@ def user_api_recommend():
     press = recommendBookInfo['press']
     # -----------------------------
     # sql
+    recommendBook = RecommendBooks()
+    recommendBook.isbn = ISBN
+    recommendBook.isbn = ISBN
+    recommendBook.isbn = ISBN
+    recommendBook.isbn = ISBN
+    recommendBook.isbn = ISBN
+    recommendBook.isbn = ISBN
+
     # ------------------------------
     print('recommend:{} {} {} {} {}'.format(ISBN, author, bookName, cause, press))
     return 's'
@@ -82,14 +102,21 @@ def user_api_recommend():
 # 用户查看自己推荐书目的历史情况 读取
 @apiUser.route('/getOperation1', methods=['GET'])
 def api_user_get_operation1():
+    son = request.args.get('son', type=str)
+    url = request.url
+    print(url)
     # ---------
     # sql select
     # operationRecords
+    if son != 'admin':
+        histories = RecommendBooks.query.filter_by(sno=son).all()
+    else:
+        histories = RecommendBooks.query.all()
     # -------
     # bookInfo = request.get_json()['params']
-    operationList = []
-    # for operation in operationRecords:
-    o = {
+    historiesList = []
+    # for history in histories:
+    h = {
         'key': 'op1',
         'type': '订购关系生效',
         'name': '曲丽丽',
@@ -99,28 +126,10 @@ def api_user_get_operation1():
         'updatedAt': '2019-10-03  19:23:12',
         'remark': '-'
     }
-    operationList.append(o)
+    historiesList.append(h)
     operations = {
-        'data': operationList
+        'data': historiesList
     }
 
-    return jsonify(operationList)
+    return jsonify(operations)
 
-# #
-# @apiUser.route('/book', methods=['POST'])
-# def
-#
-#     return jsonify()
-#
-#
-# #
-# @apiUser.route('/book', methods=['POST'])
-# def
-#
-#     return jsonify()
-#
-#
-# #
-# @apiUser.route('/book', methods=['POST'])
-# def
-#     return jsonify()
