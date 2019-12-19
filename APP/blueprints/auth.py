@@ -23,80 +23,6 @@ def init_auth(app):
     app.register_blueprint(blueprint=auth)
 
 
-@auth.route('/SSS/')
-def index():
-    # return render_template('library/home.html')
-    return 'sss'
-
-
-# @login_required
-# @auth.route('/home/')
-# def index():
-# return render_template('library/home.html')
-
-
-@auth.route('/login/', methods=['GET', 'POST'])
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('auth.index'))
-    form = LoginForm()
-    if form.validate_on_submit():
-        readerID = form.ReaderID.data
-        password = form.password.data
-        remember = form.remember.data
-        reader = Reader.query.filter_by(RID=readerID).first()
-        if reader is not None and reader.validate_password(password):
-            login_user(reader, remember=remember)
-            flash('Welcome back.', 'info')
-            if current_user.is_admin:
-                return redirect(url_for('admin.index'))
-            else:
-                return redirect(url_for('auth.index'))
-        flash('Invalid username or password.', 'warning')
-    return render_template('auth/login.html', form=form)
-
-
-@auth.route('/logout/')
-@login_required
-def logout():
-    # print("stage 1")
-    logout_user()
-    flash('Logout success.', 'info')
-    print(url_for('auth.login'))
-    return redirect(url_for('auth.login'))
-
-
-@auth.route('/register/', methods=['GET', 'POST'])
-def register():
-    form = RegisterForm()
-    if form.validate_on_submit():
-        password = form.password.data
-        RID = form.RID.data
-        rName = form.rName.data
-        department = form.department.data
-        major = form.department.data
-
-        newReader = Reader()
-        newReader.password = password
-        newReader.RID = RID
-        newReader.rName = rName
-        newReader.department = department
-        newReader.major = major
-        # print(newReader)
-        # print(newReader.query.all())
-
-        if (newReader.query.filter_by(RID=newReader.RID).first() == None) and \
-                (newReader.query.filter_by(rName=newReader.rName).first() == None):
-            newReader.set_password(password)
-            db.session.add(newReader)
-            db.session.commit()
-            flash('Congratulations ! Register Successfully !', 'info')
-            return redirect(url_for('auth.login'))
-        else:
-            flash('ID or Nickname already registered')
-    return render_template('auth/register.html', form=form)
-
-
 @auth.route('/createdb/')
 def create_db():
     db.create_all()
@@ -107,32 +33,6 @@ def create_db():
 def drop_db():
     db.drop_all()
     return 'drop successfully'
-
-
-# @auth.route('/add/')
-# def add():
-#     p = Person()
-#     p.ID = '%d' % random.randrange(100)
-#     db.session.add(p)
-#     db.session.commit()
-#     return 'successfully added'
-
-
-# @auth.route('/page/')
-# def page():
-#     pages = request.args.get("page", 1, type=int)
-#     per_page = request.args.get("per_page", 3, type=int)
-#     persons = Person.query.limit(per_page).offset((pages - 1) * per_page)
-#     return render_template('personList.html', personList=persons)
-
-
-# @auth.route('/pag')
-# @admin_required
-# def pag():
-#     pages = request.args.get("page", 1, type=int)
-#     per_page = request.args.get("per_page", 3, type=int)
-#     persons = Person.query.paginate(pages, per_page)
-#     return render_template('personList.html', personList=persons)
 
 
 @auth.route('/addBooks/')
@@ -189,39 +89,26 @@ def addBooks():
         print(book['name'] + 'done')
 
 
-@auth.route('/createAdmin/')
-def create_admin():
-    reader = Reader()
-    reader.RID = 1
-    reader.set_password('111111')
-    reader.rName = 'admin'
-    reader.is_admin = True
-    db.session.add(reader)
-    db.session.commit()
-    return 'Admin success'
-
-
-@auth.route('/createReader/')
-def create_reader():
-    num = request.args.get("num", 1, type=int)
-    Max = int(Reader.query.order_by(Reader.RID.desc()).first().RID)
-    faker = Faker()
-    departments = ['Philosophy', 'Economics', 'Law', 'Education', 'Mathematics', 'Astronomy', 'Biology', 'Medicine',
-                   'Computer Science']
+@auth.route('/addUser')
+def add_user():
+    faker = Faker(locale="zh_CN")
+    num = request.args.get('num', 1, type=int)
     for i in range(num):
-        newReader = Reader()
-        RID = Max + i + 1
-        password = '111111'
-        rName = faker.name()
-        department = choice(departments)
-        major = choice(departments)
-        borrowNum = 0
-        newReader.set_password(password)
-        newReader.RID = RID
-        newReader.rName = rName
-        newReader.department = department
-        newReader.major = major
-        newReader.borrowNum = borrowNum
-        db.session.add(newReader)
+        sno = '20170900{0:04d}'.format(i+164)
+        name = faker.name()
+        password = 'abe45d28281cfa2a4201c9b90a143095'
+        phone = faker.phone_number()
+        email = faker.ascii_email()
+        user = User()
+        user.sno = sno
+        user.phone =phone
+        user.password = password
+        user.name = name
+        user.email = email
+        db.session.add(user)
         db.session.commit()
-    return 'success create %d reader' % num
+    return 'successfully added user {}'.format(num)
+# @auth.route('/addCirculation')
+# def add_circulation():
+#     books = BookInfo.query.all()
+#

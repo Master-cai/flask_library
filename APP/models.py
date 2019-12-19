@@ -5,28 +5,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from APP.extentions import db, login_manager
 
 
-class Reader(db.Model, UserMixin):
-    __tablename__ = 'Reader'
-    RID = db.Column(db.String(20), primary_key=True)
-    password = db.Column(db.String(32))
-    department = db.Column(db.String(20))
-    major = db.Column(db.String(20))
-    borrowNum = db.Column(db.Integer, default=0)
-
-    @property
-    def id(self):
-        return self.RID
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def validate_password(self, password):
-        return check_password_hash(self.password_hash, password)
-
-
 class User(db.Model, UserMixin):
     __tablename__ = 'User'
     sno = db.Column(db.String(13), primary_key=True)
+    name = db.Column(db.String(20))
     password = db.Column(db.String(32))
     phone = db.Column(db.String(11), unique=True)
     email = db.Column(db.String(50), unique=True)
@@ -51,6 +33,7 @@ class Circulation(db.Model):
     borrow_time = db.Column(db.DATE)
     deadline = db.Column(db.DATE)
     back_time = db.Column(db.DATE)
+    status = db.Column(db.Integer)  # 图书借阅状态 1：借阅中 2：已还 3：超期
 
 
 class RecommendBooks(db.Model):
