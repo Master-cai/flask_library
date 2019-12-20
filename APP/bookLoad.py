@@ -1,7 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timedelta, date
 
-dd = "Fri Nov 09 2018 14:41:35 GMT+0800"
-GMT_FORMAT = '%a %b %d %Y %H:%M:%S GMT+0800'
-print(datetime.strptime(dd, GMT_FORMAT).date())
+from faker import Faker
 
-
+faker = Faker()
+time = faker.date_between(start_date='-100d', end_date='today')
+print(time)
+delte = timedelta(days=60)
+# print(time + delte)
+print(faker.date_between(start_date='-100d', end_date=time+delte))
+print(date.today())
