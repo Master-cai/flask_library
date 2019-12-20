@@ -94,6 +94,7 @@ def addBooks():
         db.session.commit()
     return 'success'
 
+
 @auth.route('/addUser')
 def add_user():
     faker = Faker(locale="zh_CN")

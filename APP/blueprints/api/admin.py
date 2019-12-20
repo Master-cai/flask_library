@@ -453,7 +453,7 @@ def api_admin_book_procurement():
 def api_admin_revise_book_procurement():
     book = request.get_json()['params']['data']
     ISBN = book['ISBN']
-    info = OrderBooks.query.get(ISBN)
+    info = OrderBooks.query.filter_by(isbn=ISBN).first()
     bookName = book['bookname']
     author = book['author']
     bookNumber = book['bookNumber']

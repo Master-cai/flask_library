@@ -42,7 +42,11 @@ def api_user_info():
     if sno == 'admin':
         return adminPermissions
     else:
-        userPermissions['result']['name'] = User.query.get(sno).name
+        name = User.query.get(sno).name
+        if name is not None:
+            userPermissions['result']['name'] = name
+        else:
+            userPermissions['result']['name'] = 'default'
         userPermissions['result']['creatorId'] = sno
         return userPermissions
 
@@ -120,7 +124,7 @@ def user_api_recommend():
     recommendBook.book_name = bookName
     recommendBook.reason = cause
     recommendBook.publisher = press
-    recommendBook.status = 1
+    recommendBook.status = 3
     db.session.add(recommendBook)
     db.session.commit()
     # ------------------------------
@@ -130,7 +134,7 @@ def user_api_recommend():
 # 用户查看自己推荐书目的历史情况 读取
 @apiUser.route('/getOperation1', methods=['GET'])
 def api_user_get_operation1():
-    global status, time, name
+    global status, time, name, firstRecord
     sno = request.args.get('sno', type=str)
     url = request.url
     # print(url)
@@ -141,34 +145,69 @@ def api_user_get_operation1():
         histories = RecommendBooks.query.filter_by(sno=sno).all()
     else:
         histories = RecommendBooks.query.all()
-    # -------
+
+        # -------
     # bookInfo = request.get_json()['params']
     historiesList = []
     for history in histories:
         statusCode = history.status
         if statusCode == 1:
-            status = 'judging'
+            status = 'reject'
         elif statusCode == 2:
             status = 'agree'
         else:
-            status = 'reject'
-        name = User.query.get(history.sno).name
+            status = 'judging'
+        ISBN = history.isbn
+        bookName = history.book_name
+        reason = history.reason
+        limitLen = 26
+        if len(reason) > limitLen:
+            reason = reason[:limitLen] + '...'
         # print(name+'*'*50)
         time = datetime.now()
         h = {
             'key': 'op1',
-            'type': '订购关系生效',
-            'name': name,
+            'bookName': bookName,
+            'ISBN': ISBN,
             'status': status,
-            'updatedAt': time,
-            'remark': '-'
+            'reason': reason,
         }
+        # print(h)
         # 'status': 'agree',
         # 'status': 'reject',
         historiesList.append(h)
+    firstRecord = RecommendBooks.query.filter_by(sno=sno).first()
+    print(firstRecord)
+    bookName = firstRecord.book_name
+    ISBN = firstRecord.isbn
+    author = firstRecord.author
+    press = firstRecord.publisher
+    reason = firstRecord.reason
+    if firstRecord is None:
+        operations = {
+            'data': historiesList,
+            'current_status': '',
+            'bookName': '',
+            'ISBN': '',
+            'author': '',
+            'press': '',
+            'reason': ''
+        }
+        return jsonify(operations)
+    if firstRecord.status == 1:
+        current_status = 0
+    else:
+        current_status = 1
     operations = {
-        'data': historiesList
+        'data': historiesList,
+        'current_status': current_status,
+        'bookName': bookName,
+        'ISBN': ISBN,
+        'author': author,
+        'press': press,
+        'reason': reason
     }
+    print(operations)
     return jsonify(operations)
 
 
@@ -201,14 +240,31 @@ def api_user_borrowing_record():
     user = request.args.get('sno', type=str)
     if user == 'admin':
         records = Circulation.query.filter(
-            db.cast(Circulation.borrow_time, db.DATE) <= db.cast(datetime.now(), db.DATE)).all()
-    # records = RecordModel.query.filter(db.cast(RecordModel.reporttime, db.DATE) == db.cast(datetime.datetime.now(), db.DATE)).all()
+            db.cast(Circulation.borrow_time, db.DATE) <= db.cast(datetime.now(), db.DATE),
+            Circulation.status == 1).all()
     else:
+        print('else')
         records = Circulation.query.filter(
-            (db.cast(Circulation.borrow_time, db.DATE) <= db.cast(datetime.now(), db.DATE)),
-            Circulation.sno == user
+            (db.cast(Circulation.borrow_time, db.DATE) <= db.cast(datetime.now(), db.DATE)), Circulation.sno == user
         ).all()
+    print(records)
     if len(records) == 0:
+        t = {
+            'ISBN': '',
+            'bookName': '',
+            'author': '',
+            'loanTime': '',
+            'deadline': ''
+        }
+        data = []
+        data.append(t)
+        data = {
+            'data': data,
+            'pageSize': 10,
+            'pageNo': 1,
+            'totalPage': 1,
+            'totalCount': 10
+        }
         return jsonify({'status': 'fail'})
     dataList = []
     for record in records:
@@ -256,12 +312,14 @@ def api_user_borrow_record():
             author = book.author
             borrowTime = record.borrow_time
             returnTime = record.back_time
+            status = record.status
             t = {
                 'ISBN': ISBN,
                 'bookName': bookName,
                 'author': author,
                 'loanTime': borrowTime,
-                'returnTime': returnTime
+                'returnTime': returnTime,
+                'status': status
             }
             dataList.append(t)
         data = {
